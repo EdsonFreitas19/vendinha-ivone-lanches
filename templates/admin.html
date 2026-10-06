@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block title %}Painel · {{ store_name }}{% endblock %}
+{% block content %}
+<h1>Painel</h1>
+
+<section class="panel">
+  <h2>Adicionar item</h2>
+  <form method="post" action="{{ url_for('item_new') }}" enctype="multipart/form-data" class="form two-col">
+    <input type="hidden" name="csrf" value="{{ csrf_token }}">
+    <label>Nome
+      <input name="name" required maxlength="80" placeholder="Ex.: Cachorro-quente">
+    </label>
+    <label>Preço (R$)
+      <input name="price" required inputmode="decimal" placeholder="5,50">
+    </label>
+    <label>Categoria
+      <select name="category_id" required>
+        {% for c in categories %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}
+      </select>
+    </label>
+    <label>Foto
+      <input name="image" type="file" accept="image/png,image/jpeg,image/webp,image/gif">
+    </label>
+    <label class="full">Descrição (opcional)
+      <textarea name="description" rows="2" maxlength="300"></textarea>
+    </label>
+    <label class="check full"><input type="checkbox" name="available" checked> Disponível para venda</label>
+    <label class="check full">
+      <input type="checkbox" name="track_stock" data-track>
+      Controlar quantidade em estoque <small class="muted">(deixe desmarcado para itens feitos na hora)</small>
+    </label>
+    <label class="full stock-field">Quantidade em estoque
+      <input name="stock" type="number" min="0" max="100000" value="0" data-stock>
+    </label>
+    <div class="full"><button class="btn" type="submit">Adicionar</button></div>
+  </form>
+</section>
+
+<section class="panel">
+  <h2>Categorias</h2>
+  <ul class="cats">
+    {% for c in categories %}
+    <li>
+      <span>{{ c.name }} <small class="muted">({{ c.total }})</small></span>
+      <form method="post" action="{{ url_for('category_delete', cat_id=c.id) }}" class="inline"
+            onsubmit="return confirm('Excluir a categoria {{ c.name }}?')">
+        <input type="hidden" name="csrf" value="{{ csrf_token }}">
+        <button class="link danger" type="submit">Excluir</button>
+      </form>
+    </li>
+    {% endfor %}
+  </ul>
+  <form method="post" action="{{ url_for('category_new') }}" class="form row">
+    <input type="hidden" name="csrf" value="{{ csrf_token }}">
+    <input name="name" required maxlength="40" placeholder="Nova categoria (ex.: Bebidas)">
+    <button class="btn secondary" type="submit">Criar</button>
+  </form>
+</section>
+
+<section class="panel">
+  <h2>Itens ({{ items|length }})</h2>
+  {% if items %}
+  <ul class="items">
+    {% for it in items %}
+    {% set st = item_status(it) %}
+    <li class="{{ 'off' if st != 'ok' }}">
+      {% if it.image %}
+        <img src="{{ url_for('uploads', filename=it.image) }}" alt="">
+      {% else %}
+        <div class="thumb-empty">🍽️</div>
+      {% endif %}
+      <div class="info">
+        <strong>{{ it.name }}</strong>
+        <small class="muted">{{ it.category_name }} · {{ it.price_cents | brl }}</small>
+        <span class="status-line">
+          {% if st == 'unavailable' %}<span class="badge unavailable">Indisponível</span>
+          {% elif st == 'soldout' %}<span class="badge soldout">Esgotado</span>
+          {% else %}<span class="badge ok">Disponível</span>{% endif %}
+          {% if it.track_stock %}<small class="muted">{{ it.stock }} em estoque</small>
+          {% else %}<small class="muted">sem controle de estoque</small>{% endif %}
+        </span>
+      </div>
+      <div class="actions">
+        {% if it.track_stock %}
+        <form method="post" action="{{ url_for('item_stock', item_id=it.id) }}" class="inline stock-quick">
+          <input type="hidden" name="csrf" value="{{ csrf_token }}">
+          <input type="number" name="stock" min="0" max="100000" value="{{ it.stock }}" aria-label="Estoque de {{ it.name }}">
+          <button class="link" type="submit">Salvar</button>
+        </form>
+        {% endif %}
+        <a class="link" href="{{ url_for('item_edit', item_id=it.id) }}">Editar</a>
+        <form method="post" action="{{ url_for('item_toggle', item_id=it.id) }}" class="inline">
+          <input type="hidden" name="csrf" value="{{ csrf_token }}">
+          <button class="link" type="submit">{{ 'Marcar indisponível' if it.available else 'Marcar disponível' }}</button>
+        </form>
+        <form method="post" action="{{ url_for('item_delete', item_id=it.id) }}" class="inline"
+              onsubmit="return confirm('Excluir este item?')">
+          <input type="hidden" name="csrf" value="{{ csrf_token }}">
+          <button class="link danger" type="submit">Excluir</button>
+        </form>
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+    <p class="empty">Nenhum item ainda. Adicione o primeiro acima.</p>
+  {% endif %}
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='admin.js') }}"></script>
+{% endblock %}

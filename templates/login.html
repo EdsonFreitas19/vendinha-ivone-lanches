@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Entrar · {{ store_name }}{% endblock %}
+{% block content %}
+<section class="panel narrow">
+  <h1>Entrar</h1>
+  <p class="muted">Acesso da administração.</p>
+  {% if error %}<div class="flash error">{{ error }}</div>{% endif %}
+  <form method="post" class="form">
+    <input type="hidden" name="csrf" value="{{ csrf_token }}">
+    <label>Usuário
+      <input name="user" autocomplete="username" required autofocus>
+    </label>
+    <label>Senha
+      <input name="password" type="password" autocomplete="current-password" required>
+    </label>
+    <button class="btn" type="submit">Entrar</button>
+  </form>
+</section>
+{% endblock %}

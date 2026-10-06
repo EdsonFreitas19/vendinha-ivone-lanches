@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <h1>Cardápio</h1>
+  <p>Escolha uma categoria e toque em um item para ver a foto e pedir.</p>
+</section>
+
+<nav class="chips" aria-label="Categorias">
+  <a class="chip {{ 'active' if not selected }}" href="{{ url_for('index') }}">Tudo</a>
+  {% for c in categories %}
+    <a class="chip {{ 'active' if selected == c.slug }}" href="{{ url_for('index', cat=c.slug) }}">{{ c.name }}</a>
+  {% endfor %}
+</nav>
+
+<div class="grid" id="menu">
+  {% for it in items %}
+  {% set st = item_status(it) %}
+  <button type="button" class="card {{ 'is-off' if st != 'ok' }}"
+          {{ 'hidden' if selected and it.category_slug != selected }}
+          data-id="{{ it.id }}"
+          data-name="{{ it.name }}"
+          data-desc="{{ it.description }}"
+          data-price="{{ it.price_cents }}"
+          data-cat="{{ it.category_name }}"
+          data-img="{{ url_for('uploads', filename=it.image) if it.image else '' }}"
+          data-status="{{ st }}"
+          data-max="{{ max_qty(it) }}"
+          data-stock="{{ it.stock if it.track_stock else '' }}">
+    <div class="card-media">
+      {% if it.image %}
+        <img src="{{ url_for('uploads', filename=it.image) }}" alt="{{ it.name }}" loading="lazy">
+      {% else %}
+        <div class="noimg">🍽️</div>
+      {% endif %}
+      {% if st == 'unavailable' %}<span class="ribbon unavailable">Indisponível</span>
+      {% elif st == 'soldout' %}<span class="ribbon soldout">Esgotado</span>
+      {% elif it.track_stock and it.stock <= 5 %}<span class="ribbon low">Restam {{ it.stock }}</span>{% endif %}
+    </div>
+    <div class="card-body">
+      <span class="tag">{{ it.category_name }}</span>
+      <h3>{{ it.name }}</h3>
+      {% if it.description %}<p class="desc">{{ it.description }}</p>{% endif %}
+      <strong class="price">{{ it.price_cents | brl }}</strong>
+    </div>
+  </button>
+  {% endfor %}
+</div>
+<p class="empty" id="empty" {{ 'hidden' if visible }}>Nenhum item nesta categoria por enquanto.</p>
+
+<!-- Barra do pedido (aparece quando há itens) -->
+<div class="cartbar" id="cartbar" hidden>
+  <button type="button" class="btn" id="open-cart">🛒 Ver pedido · <span id="cart-count">0</span> · <span id="cart-total">R$ 0,00</span></button>
+</div>
+
+<!-- Detalhe do item -->
+<dialog id="item-dialog" class="modal" aria-labelledby="d-name">
+  <button type="button" class="close" data-close aria-label="Fechar">×</button>
+  <img id="d-img" alt="" hidden>
+  <div class="d-noimg" id="d-noimg">🍽️</div>
+  <div class="modal-body">
+    <span class="tag" id="d-cat"></span>
+    <h2 id="d-name"></h2>
+    <p id="d-desc" class="desc"></p>
+    <strong class="price big" id="d-price"></strong>
+    <p id="d-status" class="status-note"></p>
+    <div class="qty-row" id="d-qty-row">
+      <div class="stepper">
+        <button type="button" id="d-minus" aria-label="Diminuir">−</button>
+        <output id="d-qty">1</output>
+        <button type="button" id="d-plus" aria-label="Aumentar">+</button>
+      </div>
+      <button type="button" class="btn" id="d-add">Adicionar ao pedido</button>
+    </div>
+  </div>
+</dialog>
+
+<!-- Pedido -->
+<dialog id="cart-dialog" class="modal" aria-labelledby="c-title">
+  <button type="button" class="close" data-close aria-label="Fechar">×</button>
+  <div class="modal-body">
+    <h2 id="c-title">Seu pedido</h2>
+    <ul class="cart-list" id="cart-list"></ul>
+    <p class="cart-total">Total: <strong id="c-total">R$ 0,00</strong></p>
+    <button type="button" class="btn wa" id="c-send">Enviar pedido pelo WhatsApp</button>
+    <p class="muted small" id="c-hint"></p>
+    <button type="button" class="link" id="c-clear">Limpar pedido</button>
+  </div>
+</dialog>
+
+<div id="cart-config" data-whatsapp="{{ whatsapp }}" data-store="{{ store_name }}" hidden></div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+{% endblock %}

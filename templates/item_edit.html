@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Editar item · {{ store_name }}{% endblock %}
+{% block content %}
+<section class="panel narrow">
+  <h1>Editar item</h1>
+  <form method="post" enctype="multipart/form-data" class="form">
+    <input type="hidden" name="csrf" value="{{ csrf_token }}">
+    <label>Nome
+      <input name="name" required maxlength="80" value="{{ item.name }}">
+    </label>
+    <label>Preço (R$)
+      <input name="price" required inputmode="decimal" value="{{ '%d,%02d' % (item.price_cents // 100, item.price_cents % 100) }}">
+    </label>
+    <label>Categoria
+      <select name="category_id" required>
+        {% for c in categories %}
+          <option value="{{ c.id }}" {{ 'selected' if c.id == item.category_id }}>{{ c.name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Descrição
+      <textarea name="description" rows="3" maxlength="300">{{ item.description }}</textarea>
+    </label>
+    {% if item.image %}
+      <img class="preview" src="{{ url_for('uploads', filename=item.image) }}" alt="Foto atual">
+    {% endif %}
+    <label>{{ 'Trocar foto' if item.image else 'Foto' }}
+      <input name="image" type="file" accept="image/png,image/jpeg,image/webp,image/gif">
+    </label>
+    <label class="check"><input type="checkbox" name="available" {{ 'checked' if item.available }}> Disponível para venda</label>
+    <label class="check">
+      <input type="checkbox" name="track_stock" data-track {{ 'checked' if item.track_stock }}>
+      Controlar quantidade em estoque <small class="muted">(deixe desmarcado para itens feitos na hora)</small>
+    </label>
+    <label class="stock-field">Quantidade em estoque
+      <input name="stock" type="number" min="0" max="100000" value="{{ item.stock }}" data-stock>
+    </label>
+    <div class="row">
+      <button class="btn" type="submit">Salvar</button>
+      <a class="btn secondary" href="{{ url_for('admin') }}">Cancelar</a>
+    </div>
+  </form>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='admin.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,80 @@
+/* ---- Cards clicáveis ---- */
+button.card {
+  font: inherit; color: inherit; text-align: left; padding: 0; cursor: pointer;
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+button.card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,.10); }
+button.card:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+button.card[hidden] { display: none; }
+.card.is-off .card-media img, .card.is-off .noimg { filter: grayscale(.85); opacity: .7; }
+.card.is-off .price { color: var(--muted); }
+.card-media { position: relative; }
+.ribbon {
+  position: absolute; top: 10px; left: 10px; padding: 3px 10px; border-radius: 999px;
+  font-size: .75rem; font-weight: 700; background: #fff; color: var(--ink);
+  box-shadow: 0 1px 4px rgba(0,0,0,.2);
+}
+.ribbon.unavailable, .ribbon.soldout { background: #495057; color: #fff; }
+.ribbon.low { background: var(--accent); color: #4a3200; }
+
+/* ---- Modais ---- */
+dialog.modal {
+  border: 0; border-radius: 18px; padding: 0; width: min(94vw, 460px); max-height: 92vh;
+  overflow: auto; background: var(--card); color: var(--ink);
+  box-shadow: 0 20px 60px rgba(0,0,0,.35);
+}
+dialog.modal::backdrop { background: rgba(30, 20, 10, .55); }
+dialog.modal .close {
+  position: absolute; top: 10px; right: 10px; width: 36px; height: 36px; border-radius: 50%;
+  border: 0; background: rgba(255,255,255,.92); font-size: 1.5rem; line-height: 1; cursor: pointer; z-index: 2;
+  box-shadow: 0 1px 4px rgba(0,0,0,.25);
+}
+dialog.modal img#d-img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; display: block; }
+dialog.modal img#d-img[hidden], .d-noimg[hidden] { display: none; }
+.d-noimg { aspect-ratio: 4 / 3; display: grid; place-items: center; font-size: 4rem; background: #f6ead9; }
+.modal-body { padding: 16px 18px 20px; display: flex; flex-direction: column; gap: 10px; }
+.modal-body h2 { margin: 0; }
+.price.big { font-size: 1.5rem; padding: 0; }
+.status-note { margin: 0; color: var(--muted); font-size: .9rem; }
+.status-note.unavailable, .status-note.soldout { color: var(--err); font-weight: 600; }
+.status-note:empty { display: none; }
+.qty-row { display: flex; gap: 12px; align-items: center; justify-content: space-between; }
+.qty-row[hidden] { display: none; }
+.qty-row .btn { flex: 1; }
+
+.stepper { display: inline-flex; align-items: center; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; background: #fff; }
+.stepper button { width: 40px; height: 40px; border: 0; background: #fff8ef; font-size: 1.3rem; cursor: pointer; }
+.stepper button:disabled { opacity: .35; cursor: not-allowed; }
+.stepper output { min-width: 36px; text-align: center; font-weight: 700; }
+.stepper.small button { width: 32px; height: 32px; font-size: 1.1rem; }
+
+/* ---- Pedido ---- */
+.cartbar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; padding: 12px 16px;
+  display: flex; justify-content: center;
+  background: linear-gradient(to top, rgba(255,248,239,.98) 60%, rgba(255,248,239,0));
+}
+.cartbar[hidden] { display: none; }
+.cartbar .btn { width: min(100%, 460px); box-shadow: 0 6px 18px rgba(217,72,15,.35); }
+body { padding-bottom: 76px; }
+.cart-list { list-style: none; margin: 0; padding: 0; }
+.cart-list li { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.ci-name { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.ci-name small { color: var(--muted); }
+.ci-sub { min-width: 78px; text-align: right; font-weight: 700; }
+.cart-total { margin: 4px 0; font-size: 1.15rem; text-align: right; }
+.btn.wa { background: #1faa59; }
+.btn.wa:hover { background: #178a47; }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.small { font-size: .85rem; }
+
+/* ---- Painel: estoque e status ---- */
+.badge { display: inline-block; padding: 1px 9px; border-radius: 999px; font-size: .75rem; font-weight: 700; }
+.badge.ok { background: #e6f6ea; color: #1b6b2f; }
+.badge.soldout { background: #fff1d6; color: #8a5200; }
+.badge.unavailable { background: #e9ecef; color: #495057; }
+.status-line { display: flex; gap: 8px; align-items: center; margin-top: 2px; flex-wrap: wrap; }
+.stock-quick { display: inline-flex; gap: 6px; align-items: center; }
+.stock-quick input { width: 74px; padding: 6px 8px; }
+label.stock-field.disabled { opacity: .5; }
+.items li.off .info strong { text-decoration: none; }
